@@ -1,0 +1,94 @@
+view#home {
+    width: 100%;
+    height: 100%;
+    padding: 0rem;
+    margin: 0rem;
+    font-size: 1.6rem;
+}
+
+view#home #panel-settings {
+    position : relative;
+    top : 0;
+    left : 0;
+    height : 100vh;
+    width : 25rem;
+    background-color : rgba(0,0,0,0.1);
+}
+
+view#home #panel-settings h1#title {
+    margin-top: 1.5rem;
+    color : var(--text-color);
+    font-size : 2rem;
+    font-weight : thin;
+    text-align : center;
+    margin-bottom : 1rem;
+}
+
+view#home #panel-main {
+    position : relative;
+    top : 0;
+    left : 0;
+    margin: 0;
+    height : 100vh;
+    max-height: 100vh;
+    width : 100%;
+    overflow-y: auto;
+    padding : 3rem;
+    background-color : transparent;
+}
+
+view#home #panel-main #drag-and-drop {
+    margin-top : 2rem;
+    width : 30rem;
+    height : 20rem;
+    border : .5rem dashed rgba(200,200,200,0.1);
+    border-radius : 0.5rem;
+    padding : 1rem;
+    box-sizing : border-box;
+    display : flex;
+    flex-direction : column;
+    justify-content : center;
+    align-items : center;
+    cursor : pointer;
+    transition : all 0.5s ease-in-out;
+}
+
+view#home #panel-main #drag-and-drop svg {
+    transition : all 0.5s ease-in-out;
+}
+
+view#home #panel-main #drag-file {
+    display: none;
+}
+
+view#home #panel-main h1#title{
+    color : var(--text-color);
+    font-size : 2rem;
+    font-weight : bold;
+    text-align : center;
+    margin-bottom : 1rem;
+}
+
+view#home #panel-main #drag-and-drop.active {
+    border : .5rem dashed rgba(200,200,200,0.5);
+}
+
+view#home #panel-main #drag-and-drop.active svg {
+    fill : rgba(200,200,200,0.5);
+}
+
+view#home #panel-main #gallery {
+    margin-top : 2rem;
+    width : 30rem;
+    height : 6rem;
+    border-radius : 0.5rem;
+    padding : 1rem;
+    box-sizing : border-box;
+    display : flex;
+    flex-direction : row;
+    justify-content : center;
+    align-items : center;
+    cursor : pointer;
+    transition : all 0.5s ease-in-out;
+    flex-wrap : wrap;
+}
