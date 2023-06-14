@@ -11,8 +11,68 @@ view#home #panel-settings {
     top : 0;
     left : 0;
     height : 100vh;
-    width : 25rem;
+    width : 21rem;
+    min-width: 21rem;
     background-color : rgba(0,0,0,0.1);
+}
+
+view#home #panel-settings #options {
+    height: 50vh;
+    width: 21rem;
+}
+
+view#home #panel-settings #input-slider-value {
+    font-size : 0.8rem;
+    color : rgba(200,200,200,0.5);
+    margin-top : .2rem;
+    width : 16rem;
+}
+
+view#home #panel-settings #input-slider{
+    width : 16rem;
+    cursor : pointer;
+}
+
+input[type=range]{
+    -webkit-appearance: none;
+    background: transparent;
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+    width: 300px;
+    height: 1rem;
+    background: rgba(0,0,0,0.15);
+    border: none;
+    border-radius: 1rem;
+}
+
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    border: none;
+    height: 1rem;
+    width: 1rem;
+    border-radius: 1rem;
+    background: var(--accent-color);
+    margin-top: 0px;
+}
+
+input[type=range]:focus {
+    outline: none;
+}
+
+input[type=range]:focus::-webkit-slider-runnable-track {
+    background: rgba(0,0,0,0.15);
+}
+
+
+view#home #panel-settings #queue {
+    height: 50vh;
+    max-height: 50vh;
+    overflow-y: auto;
+    width: 21rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 view#home #panel-settings h1#title {
@@ -50,6 +110,13 @@ view#home #panel-main #drag-and-drop {
     justify-content : center;
     align-items : center;
     cursor : pointer;
+    transition : all 0.5s ease-in-out;
+}
+
+view#home #panel-main #drag-and-drop svg {
+    fill : rgba(200,200,200,0.1);
+    width : 10rem;
+    height : 10rem;
     transition : all 0.5s ease-in-out;
 }
 

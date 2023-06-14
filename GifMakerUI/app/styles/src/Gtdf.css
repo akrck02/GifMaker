@@ -31,3 +31,23 @@
 .image-icon:hover {
     transform: scale(1.1);
 }
+
+*::-webkit-scrollbar {
+    width: .65rem;
+    background-color: transparent;
+}
+
+
+*::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, .15);
+    border-radius: .15em;
+    transition: background var(--fast);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, .075) !important;
+}
+
+:root[data-theme=dark] *::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, .065);
+}

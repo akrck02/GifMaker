@@ -35,6 +35,8 @@
   },
   "dependencies": {
     "dotenv": "^16.0.1",
+    "express": "^4.18.2",
+    "express-fileupload": "^1.4.0",
     "live-server": "^1.1.0"
   }
 }

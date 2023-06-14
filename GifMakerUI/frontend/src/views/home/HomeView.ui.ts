@@ -22,7 +22,7 @@ export default class HomeView extends ViewUI {
 
         const settingsPanel = this.instanceSettingsPanel();
         const mainPanel = this.instanceMainPanel();
-       
+
         settingsPanel.appendTo(this);
         mainPanel.appendTo(this);
 
@@ -56,10 +56,26 @@ export default class HomeView extends ViewUI {
             classes : ["box-column","box-y-center"],
         });
 
+        const settings = new UIComponent({
+            type : "div",
+            id : "options",
+            classes : ["box-column","box-y-center"],
+        });
+
+
         const title = new UIComponent({ 
             type : "h1",
             text : App.getBundle().home.SETTINGS,
             id: "title",
+            styles : {
+                marginTop : "1rem",
+                fontSize : "1.5rem",
+                padding : "1rem",
+                backgroundColor : "rgba(200,200,200,0.015)",
+                width : "18rem",
+                borderRadius : "0.5rem",
+                fontWeight : "thin",
+            }
         });
 
         const inputLabel = new UIComponent({
@@ -68,8 +84,11 @@ export default class HomeView extends ViewUI {
             id : "input-file-name-label",
             styles : {
                 fontSize : "0.8rem",
+                fontWeight : "thin",
                 color : "rgba(200,200,200,0.5)",
                 marginTop : "1rem",
+                width : "16rem",
+                marginBottom : ".3rem",
             }
         });
 
@@ -83,7 +102,7 @@ export default class HomeView extends ViewUI {
             },
             id : "input-file-name",
             styles : {
-                width : "10rem",
+                width : "16rem",
             }
         });
 
@@ -92,11 +111,6 @@ export default class HomeView extends ViewUI {
             type : "p",
             text : "Time: 50ms",
             id : "input-slider-value",
-            styles : {
-                fontSize : "0.8rem",
-                color : "rgba(200,200,200,0.5)",
-                marginTop : ".2rem",
-            }
         });
 
         const slider = new UIComponent({
@@ -107,11 +121,7 @@ export default class HomeView extends ViewUI {
                 max : "1000",
                 value : "50",
             },
-            id : "input-slider",
-            styles : {
-                width : "10rem",
-                cursor : "pointer",
-            }
+            id : "input-slider"
         });
         
 
@@ -134,16 +144,31 @@ export default class HomeView extends ViewUI {
             }
         });
 
-        
-        title.appendTo(panel);
-        
-        sliderValue.appendTo(panel);
-        slider.appendTo(panel);
+        setEvents(button.element,{
+            click : (e : Event) => {
+                const target = e.target as HTMLInputElement;
 
-        inputLabel.appendTo(panel);
-        input.appendTo(panel);
+                const state = this.addQueueItem(input.getValue(),"coffee", false, true);
+                const id = HomeCore.makeGif(this, input.getValue(), slider.getValue());
+                state.element.id = id;
+                
+            }
+        });
 
-        button.appendTo(panel);
+        title.appendTo(settings);
+        
+        sliderValue.appendTo(settings);
+        slider.appendTo(settings);
+
+        inputLabel.appendTo(settings);
+        input.appendTo(settings);
+
+        button.appendTo(settings);
+
+        const queuePanel = this.instanceQueuePanel();
+
+        settings.appendTo(panel);
+        queuePanel.appendTo(panel);
         return panel;
 
     }
@@ -212,6 +237,129 @@ export default class HomeView extends ViewUI {
         gallery.appendTo(panel);
 
         return panel;
+
+    }
+
+
+    private instanceQueuePanel(): UIComponent {
+
+        const panel = new UIComponent({
+            type : "div",
+            classes : ["box-column","box-center"],
+            id : "queue-panel",
+        });
+
+        const title = new UIComponent({
+            type : "h1",
+            text : "Queue",
+            id: "title",
+            styles : {
+                padding : "1rem",
+                backgroundColor : "rgba(200,200,200,0.015)",
+                width : "18rem",
+                fontSize : "1.5rem",
+                borderRadius : "0.5rem",
+                fontWeight : "thin",
+            }
+        })
+
+
+        const queue = new UIComponent({
+            type : "div",
+            id : "queue",
+        });
+
+        title.appendTo(panel);
+        queue.appendTo(panel);
+        return panel;
+
+    }
+
+    public addQueueItem(name : string, icon : string, download: boolean = false, add : boolean) :UIComponent{
+
+        const queue = this.element.querySelector("#queue") as HTMLElement;
+
+        const item = new UIComponent({
+            type : "div",
+            classes : ["box-row","box-x-between"],
+            styles : {
+                width : "18rem",
+                padding : ".5rem",
+                background : "rgba(200,200,200,0.015)",
+                marginBottom : ".5rem",
+                borderRadius : ".5rem",
+            }
+        });
+
+        const icons = new UIComponent({
+            type : "div",
+            classes : ["box-row",],
+        });
+
+        const itemIcon = getMaterialIcon(icon,{
+            size : "1.5rem",
+            fill : "rgba(200,200,200,0.5)",
+        });
+
+        if(download) {
+            const downloadIcon = getMaterialIcon("download",{
+                size : "1.5rem",
+                fill : "rgba(200,200,200,0.5)",
+            });
+    
+            setStyles(downloadIcon.element,{
+                cursor : "pointer",
+                marginRight : ".5rem",
+            });
+    
+    
+            downloadIcon.appendTo(icons);
+        }
+
+        itemIcon.appendTo(icons);
+       
+        const itemName = new UIComponent({
+            type : "p",
+            text : name,
+            classes : ["box-row","box-y-center"],
+            styles : {
+                fontSize : "1rem",
+                color : "rgba(200,200,200,0.5)",
+                marginLeft : ".5rem",
+                height : "1.5rem",
+            }
+        });
+
+       
+        itemName.appendTo(item);
+        icons.appendTo(item);
+    
+
+        if(add)
+            item.appendTo(queue);
+
+        return item;
+    }
+
+    public updateQueueItem(id : string, name : string, success : boolean = true) {
+        console.log("update queue item");
+        
+        const item = document.getElementById(id) as HTMLElement;
+
+        if(!success){
+            item.remove();
+        }
+
+
+        const newQueueItem = this.addQueueItem(name, "check", true, false);
+        item.outerHTML = newQueueItem.element.outerHTML;
+
+    }
+
+    public clearGallery(){
+        
+        const gallery = this.element.querySelector("#gallery") as HTMLElement;
+        gallery.innerHTML = "";
 
     }
 
