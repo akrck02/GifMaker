@@ -17,7 +17,7 @@ view#home #panel-settings {
 }
 
 view#home #panel-settings #options {
-    height: 50vh;
+    height: 35vh;
     width: 21rem;
 }
 
@@ -36,6 +36,7 @@ view#home #panel-settings #input-slider{
 input[type=range]{
     -webkit-appearance: none;
     background: transparent;
+    --thumb :  var(--accent-color);
 }
 
 input[type=range]::-webkit-slider-runnable-track {
@@ -52,7 +53,7 @@ input[type=range]::-webkit-slider-thumb {
     height: 1rem;
     width: 1rem;
     border-radius: 1rem;
-    background: var(--accent-color);
+    background: var(--thumb);
     margin-top: 0px;
 }
 
@@ -66,7 +67,7 @@ input[type=range]:focus::-webkit-slider-runnable-track {
 
 
 view#home #panel-settings #queue {
-    height: 50vh;
+    height: 65vh;
     max-height: 50vh;
     overflow-y: auto;
     width: 21rem;
@@ -76,13 +77,44 @@ view#home #panel-settings #queue {
 }
 
 view#home #panel-settings h1#title {
-    margin-top: 1.5rem;
-    color : var(--text-color);
-    font-size : 2rem;
+    margin: 1rem 0;
+    font-size : 1.5rem;
+    padding : 1rem;
+    background-color : rgba(200,200,200,0.015);
+    width : 18rem;
+    border-radius : 0.5rem;
     font-weight : thin;
-    text-align : center;
-    margin-bottom : 1rem;
 }
+
+view#home #panel-settings #input-file-name-label {
+    font-size : 0.8rem;
+    font-weight : thin;
+    color : rgba(200,200,200,0.5);
+    margin-top : 1rem;
+    width : 16rem;
+    margin-bottom : .3rem;
+}
+
+view#home #panel-settings #input-file-name {
+    width : 16rem;
+}
+
+view#home #panel-settings #input-file-name:focus {
+    outline-color : rgba(200,200,200,0.1);
+}
+
+
+view#home #panel-settings #button-create-gif {
+    width : 6rem;
+    margin-top : 1rem;
+    background-color : rgba(200,200,200,0.1);    
+}
+
+view#home #panel-settings #button-create-gif:hover {
+    background-color : rgba(200,200,200,0.05);
+    box-shadow : 0 0 0.5rem rgba(0,0,0,0.1);
+}
+
 
 view#home #panel-main {
     position : relative;
@@ -96,6 +128,21 @@ view#home #panel-main {
     padding : 3rem;
     background-color : transparent;
 }
+
+view#home #panel-main .floating-button {
+    width : 3rem;
+    height : 3rem;
+    border-radius : 4rem;
+    background-color : rgba(30,30,30,0.75);
+    margin-right : .5rem;
+    transition: .25s ease-in-out;
+}
+
+view#home #panel-main .floating-button:hover {
+    background-color : rgba(30,30,30,0.85);
+    transform: scale(1.1);
+}
+
 
 view#home #panel-main #drag-and-drop {
     margin-top : 2rem;

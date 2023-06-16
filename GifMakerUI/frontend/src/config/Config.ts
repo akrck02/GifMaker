@@ -20,8 +20,8 @@ export class Config {
 
     //global runtime configurations
     public static BASE = {
-        APP_NAME: "Gtdf-App",
-        APP_VERSION: "v.x.x",
+        APP_NAME: "GifMaker",
+        APP_VERSION: "v.1.0",
         HOST: "127.0.0.1",
         PORT: 80,
         URL: location.href,
@@ -51,6 +51,7 @@ export class Config {
     public static API = {
         URL : "http://127.0.0.1:3000/",
         GIF : "http://127.0.0.1:3000/make/gif",
+        GIF_DOWNLOAD : "http://127.0.0.1:3000/get/gif",
     };
 
 

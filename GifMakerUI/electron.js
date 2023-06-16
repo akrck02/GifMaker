@@ -1,6 +1,10 @@
 const {app, BrowserWindow, ipcMain} = require('electron');
 const path = require('path');
 
+//remove menu bar
+app.on('browser-window-created',function(e,window) {
+    window.setMenu(null);
+});
 
 app.whenReady().then(() => {
 
@@ -13,6 +17,9 @@ app.whenReady().then(() => {
             nodeIntegration: true
         }
     })
+
+
+    mainWindow.setMinimumSize(1200, 720)
     
     // and load the index.html of the app.
     mainWindow.loadFile('app/index.html')
@@ -21,6 +28,7 @@ app.whenReady().then(() => {
     // mainWindow.webContents.openDevTools()
     
 })
+
 
 
 require('./api.js')

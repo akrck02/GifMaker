@@ -1,4 +1,6 @@
 import App from "../../App.js";
+import { Config } from "../../config/Config.js";
+import { RequestState } from "../../core/requests/states.js";
 import { getMaterialIcon } from "../../lib/gtd/material/materialicons.js";
 import { setClasses, setEvents, setStyles, UIComponent } from "../../lib/gtd/web/uicomponent.js";
 import { ViewUI } from "../../lib/gtdf/views/ViewUI.js";
@@ -29,24 +31,45 @@ export default class HomeView extends ViewUI {
         this.appendTo(container);
     }
 
-
     public addImage(File : File){
 
         //add image to gallery
         const gallery = this.element.querySelector("#gallery") as HTMLElement;
 
+        const index = Object.values(HomeCore.files).indexOf(File);
+
         const image = new UIComponent({
             type : "img",
+            id : `image-${index}`,
             attributes : {
                 src : URL.createObjectURL(File),
+                draggable : "true",
             },
             classes : ["image-icon"],
         });
 
+        setEvents(image.element,{
+            click : (e : Event) => {
+                this.setSelected(image.element);
+            },
+        });
+
+
         image.appendTo(gallery);
+     
 
     }
 
+    public setSelected (element : HTMLElement){
+         // remove selected from all images
+         const images = document.querySelectorAll(".image-icon");
+         images.forEach((image : any) => {
+             image.classList.remove("selected");
+         });
+
+         // add selected to clicked image
+         element.classList.toggle("selected");
+    }
 
     public instanceSettingsPanel(): UIComponent {
 
@@ -62,54 +85,38 @@ export default class HomeView extends ViewUI {
             classes : ["box-column","box-y-center"],
         });
 
-
         const title = new UIComponent({ 
             type : "h1",
             text : App.getBundle().home.SETTINGS,
             id: "title",
-            styles : {
-                marginTop : "1rem",
-                fontSize : "1.5rem",
-                padding : "1rem",
-                backgroundColor : "rgba(200,200,200,0.015)",
-                width : "18rem",
-                borderRadius : "0.5rem",
-                fontWeight : "thin",
-            }
         });
 
         const inputLabel = new UIComponent({
             type : "label",
             text : "File name",
             id : "input-file-name-label",
-            styles : {
-                fontSize : "0.8rem",
-                fontWeight : "thin",
-                color : "rgba(200,200,200,0.5)",
-                marginTop : "1rem",
-                width : "16rem",
-                marginBottom : ".3rem",
-            }
         });
-
 
         const input = new UIComponent({
             type : "input",
+            id : "input-file-name",
             attributes : {
                 type : "text",
                 placeholder : "File name",
-                value : "mygif",
+                value : Config.getConfigVariable("gifName") || "KITTEN",
             },
-            id : "input-file-name",
-            styles : {
-                width : "16rem",
+        });
+
+        setEvents(input.element,{
+            input : (e : Event) => {
+                const target = e.target as HTMLInputElement;
+                Config.setConfigVariable("gifName", target.value);
             }
         });
 
-
         const sliderValue = new UIComponent({
             type : "p",
-            text : "Time: 50ms",
+            text : `Time: ${Config.getConfigVariable("gifTime") || 50} ms`,
             id : "input-slider-value",
         });
 
@@ -117,41 +124,63 @@ export default class HomeView extends ViewUI {
             type : "input",
             attributes : {
                 type : "range",
-                min : "1",
-                max : "1000",
-                value : "50",
+                min : "5",
+                max : "500",
+                step: "5",
+                value :  Config.getConfigVariable("gifTime") || "50",
             },
             id : "input-slider"
         });
         
-
         setEvents(slider.element,{
             input : (e : Event) => {
                 const target = e.target as HTMLInputElement;
                 sliderValue.element.innerText = "Time: " + target.value + " ms";
+                Config.setConfigVariable("gifTime", target.value);
             }
         });
-
 
         const button = new UIComponent({
             type : "button",
             text : "Create",
             id : "button-create-gif",
-            styles : {
-                width : "6rem",
-                marginTop : "1rem",
-                backgroundColor : "rgba(200,200,200,0.1)",
-            }
+            classes : ["box-row","box-center","button"],   
         });
+
+        const icon = getMaterialIcon("construction",{
+            size : "1.25rem",
+            fill : "rgba(200,200,200,0.5)",
+        });
+
+        setStyles(icon.element,{
+            marginLeft : ".5rem",
+        });
+
+        icon.appendTo(button);
 
         setEvents(button.element,{
             click : (e : Event) => {
-                const target = e.target as HTMLInputElement;
+               
+                if(input.getValue() == ""){
+                    input.element.focus();
+                    alert({
+                        title : "Be careful!",
+                        message : "File name cannot be empty",
+                        icon : "info",
+                    })
+                    return;
+                }
 
-                const state = this.addQueueItem(input.getValue(),"coffee", false, true);
+                if(Object.keys(HomeCore.files).length == 0){
+                    alert({
+                        title : "Be careful!",
+                        message : "You must upload at least one image",
+                        icon : "info",
+                    })
+                    return;
+                }
+
                 const id = HomeCore.makeGif(this, input.getValue(), slider.getValue());
-                state.element.id = id;
-                
             }
         });
 
@@ -174,6 +203,7 @@ export default class HomeView extends ViewUI {
     }
 
 
+
     public instanceMainPanel(): UIComponent {
 
         const panel = new UIComponent({
@@ -182,6 +212,8 @@ export default class HomeView extends ViewUI {
             id : HomeView.MAIN_PANEL_ID,
         });
 
+        const floatingPanel = this.instanceGalleryButtons();
+        floatingPanel.appendTo(panel);
 
         const title = new UIComponent({
             type : "h1",
@@ -240,6 +272,140 @@ export default class HomeView extends ViewUI {
 
     }
 
+    private instanceGalleryButtons() : UIComponent {
+
+        const panel = new UIComponent({
+            type : "div",
+            classes : ["box-row","box-x-center"],
+            id : "gallery-buttons",
+            styles : {
+                position : "fixed",
+                bottom : "1rem",
+                right : "1rem",
+            }
+        });
+
+        const deleteButton = new UIComponent({
+            type : "button",
+            classes: ["floating-button"],
+        });
+
+        const icon = getMaterialIcon("delete",{
+            size : "1.5rem",
+            fill : "rgba(200,200,200,0.5)",
+        });
+
+        setEvents(icon.element,{
+            click : (e : Event) => {
+                const selected = document.querySelector(".selected");
+                if(!selected){
+                    alert({
+                        title : "Be careful!",
+                        message : "You must select an image to delete",
+                        icon : "info",
+                    })
+                    return;
+                }
+           
+                selected.remove();
+
+                //remove from files
+                const index = selected.id.split("-")[1];
+                delete HomeCore.files[Object.keys(HomeCore.files)[index]];                
+            }
+        });
+
+
+        deleteButton.appendTo(panel);
+        icon.appendTo(deleteButton);
+
+        const previewButton = new UIComponent({ 
+            type : "button",
+            classes: ["floating-button"],
+        });
+
+        const previewIcon = getMaterialIcon("back",{
+            size : "1.5rem",
+            fill : "rgba(200,200,200,0.5)",
+        });
+
+        setEvents(previewButton.element,{
+            click : (e : Event) => {
+                const selected = document.querySelector(".selected");
+                if(!selected){
+                    alert({
+                        title : "Be careful!",
+                        message : "You must select an image to move",
+                        icon : "info",
+                    })
+                    return;
+                }
+
+                const index = selected.id.split("-")[1];        
+                if(+index == 0){
+                    alert({
+                        title : "Be careful!",
+                        message : "You cannot move the first image",
+                        icon : "info",
+                    })
+                    return;
+                }
+
+                HomeCore.moveFilePrevious(index);
+                this.reloadGallery();                
+            }
+        });
+
+        previewButton.appendTo(panel);
+        previewIcon.appendTo(previewButton);
+
+        const nextButton = new UIComponent({
+            type : "button",
+            classes: ["floating-button"],
+        });
+
+        setEvents(nextButton.element,{
+            click : (e : Event) => {
+                const selected = document.querySelector(".selected");
+                if(!selected){
+                    alert({
+                        title : "Be careful!",
+                        message : "You must select an image to move",
+                        icon : "info",
+                    })
+                    return;
+                }
+
+                const index = selected.id.split("-")[1];
+                if(+index == Object.keys(HomeCore.files).length - 1){
+                    alert({
+                        title : "Be careful!",
+                        message : "You cannot move the last image",
+                        icon : "info",
+                    })
+                    return;
+                }
+
+                HomeCore.moveFileNext(index);
+                this.reloadGallery();
+            }
+        });
+
+
+        const nextIcon = getMaterialIcon("back",{
+            size : "1.5rem",
+            fill : "rgba(200,200,200,0.5)",
+        });
+
+        setStyles(nextIcon.element,{
+            transform : "rotate(180deg)",
+        });
+
+        nextButton.appendTo(panel);
+        nextIcon.appendTo(nextButton);
+        
+        return panel;
+    }
 
     private instanceQueuePanel(): UIComponent {
 
@@ -275,9 +441,47 @@ export default class HomeView extends ViewUI {
 
     }
 
-    public addQueueItem(name : string, icon : string, download: boolean = false, add : boolean) :UIComponent{
-
+    public reloadQueue() {
         const queue = this.element.querySelector("#queue") as HTMLElement;
+        queue.innerHTML = "";
+
+        Object.keys(HomeCore.requestQueue).reverse().forEach((key : string) => {
+            const item = HomeCore.requestQueue[key];
+
+            let queueItem : UIComponent;
+
+            switch(item.state){
+                case RequestState.WAITING:
+                    queueItem = this.createWaitingQueueItem(item.name);
+                    break;
+                case RequestState.SUCCESS:
+                    queueItem = this.createSuccessQueueItem(item.name, key);
+                    break;
+                case RequestState.ERROR:
+                    queueItem = this.createErrorQueueItem(item.name);
+                    break;
+            }
+
+            queueItem.element.id = key;
+            queueItem.appendTo(queue);
+        });
+
+    }
+
+
+    public createWaitingQueueItem(name : string) : UIComponent {
+        return this.createQueueItem(name, "coffee", false, name);
+    }
+
+    public createSuccessQueueItem(name : string, id : string) : UIComponent {
+        return this.createQueueItem(name, "check", true, id);
+    }
+
+    public createErrorQueueItem(name : string) : UIComponent {
+        return this.createQueueItem(name, "close", false, name);
+    }
+
+    public createQueueItem(name : string, icon : string, download: boolean = false, id: string) : UIComponent {
 
         const item = new UIComponent({
             type : "div",
@@ -313,6 +517,12 @@ export default class HomeView extends ViewUI {
             });
     
     
+            setEvents(downloadIcon.element,{
+                click : (e : Event) => {
+                    HomeCore.downloadGif(id);
+                }
+            });
+
             downloadIcon.appendTo(icons);
         }
 
@@ -334,32 +544,31 @@ export default class HomeView extends ViewUI {
         itemName.appendTo(item);
         icons.appendTo(item);
     
-
-        if(add)
-            item.appendTo(queue);
-
         return item;
     }
 
     public updateQueueItem(id : string, name : string, success : boolean = true) {
-        console.log("update queue item");
-        
+
         const item = document.getElementById(id) as HTMLElement;
 
         if(!success){
             item.remove();
         }
 
-
-        const newQueueItem = this.addQueueItem(name, "check", true, false);
+        const newQueueItem = this.createSuccessQueueItem(name, id);
         item.outerHTML = newQueueItem.element.outerHTML;
 
     }
 
-    public clearGallery(){
-        
+    public reloadGallery(){
+
         const gallery = this.element.querySelector("#gallery") as HTMLElement;
         gallery.innerHTML = "";
+
+        Object.keys(HomeCore.files).forEach((key : string) => {
+            const file = HomeCore.files[key];
+            this.addImage(file);
+        });
 
     }
 

@@ -23,12 +23,8 @@ app.post('/make/gif', (req, res) => {
             fs.mkdirSync(dir);
         }
         
-
-        console.log(req.files);
-        
         // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
         req.files.file.forEach(file => {
-            console.log(file);
 
             // Use the mv() method to place the file somewhere on your server
             file.mv(`./uploads/${id}/${file.name}`, function(err) {
@@ -46,19 +42,54 @@ app.post('/make/gif', (req, res) => {
         const command  = `java -jar ./bin/GifMaker.jar --delay=${delay} --input=uploads/${id} --output=out --name=${output}.gif`;
         
         exec(command, (error, stdout, stderr) => {
-                if (error) {
-                    console.log(`error: ${error.message}`);
-                }
+                
+            if (error) {
+                console.log(`error: ${error.message}`);
+            }
 
-                if (stderr) {
-                    console.log(`stderr: ${stderr}`);
-                }
+            if (stderr) {
+                console.log(`stderr: ${stderr}`);
+            }
 
-                //console.log(`stdout: ${stdout}`);
-                res.sendFile(`./out/${output}.gif`, { root: __dirname });
+            // remove directory for user
+            fs.rmSync(`./uploads/${id}/`, { recursive: true });
+
+            //send OK
+            res.send('OK');
+
         });
 
 });
+
+app.get('/get/gif', (req, res) => {
+
+    const id = req.query.id;
+
+    if(!id) {
+        return res.status(400).send('No id provided.');
+    }
+
+    if (!fs.existsSync(`./out/${id}.gif`)){
+        return res.status(404).send('No gif found.');
+    }
+
+    res.sendFile(`./out/${id}.gif`, { root: __dirname });
+});
+
+
+app.get('/get/gif/list', (req, res) => {
+    
+    if (!fs.existsSync(`./out/`)){
+        return res.json([]);
+    }
+
+    // list ./out directory
+    const list = fs.readdirSync('./out/');
+    res.send(list);
+
+});
+
+
 
 app.get('/ping', (req, res) => {
     res.send('pong');
