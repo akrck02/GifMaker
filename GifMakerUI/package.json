@@ -3,16 +3,21 @@
   "version": "1.0.0",
   "description": "Electron app for making gifs from frames",
   "main": "electron.js",
-  "directories": {
-    "doc": "docs"
-  },
   "scripts": {
     "compile": "npm run compile-server & npm run compile-client",
     "compile-server": "tsc --project ./backend/",
     "compile-server-watch": "tsc --project ./backend/ -w",
     "compile-client": "tsc --project ./frontend/",
     "compile-client-watch": "tsc --project ./frontend/ -w",
-    "start": "electron ."
+    "start": "electron .",
+    "pack-styles": "java -jar bin/lit-v1.0b2.jar",
+    "pack-client": "rollup frontend/temp/src/Start.js --file frontend/out/Start.js --format iife",
+    "pack": "npm run pack-client & npm run pack-styles",
+    "dist": "npm run dist-linux & npm run dist-win",
+    "dist-linux": "electron-builder --publish=never",
+    "dist-win": "electron-builder --win --publish=never",
+    "dev" : "node ./env dev",
+    "prod" : "node ./env prod"
   },
   "repository": {
     "type": "git",
@@ -31,12 +36,41 @@
   "devDependencies": {
     "electron": "^25.1.0",
     "rollup": "^2.70.1",
-    "typescript": "^4.5.2"
+    "typescript": "^4.5.2",
+    "electron-builder": "^24.4.0"
   },
   "dependencies": {
     "dotenv": "^16.0.1",
     "express": "^4.18.2",
     "express-fileupload": "^1.4.0",
     "live-server": "^1.1.0"
+  },
+  "build" : {
+    "appId": "com.akrck02.gifmaker",
+    "productName": "Gif Maker",
+    "directories": {
+        "app": ".",
+        "output": "dist"
+    },
+    "files":[
+      "package.json",
+      "electron.js",
+      "api.js",
+      "preload.js",
+      "backend/**/*",
+      "app/index.html",
+      "app/styles/out/master.css",
+      "frontend/out/Start.js"
+    ],
+    "mac": {
+        "target": "dmg"
+      },
+    "win": {
+        "target": "nsis"
+    },
+    "linux": {
+        "target": "AppImage",
+        "category": "Utility"
+    }
   }
 }

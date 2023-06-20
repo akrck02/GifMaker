@@ -159,6 +159,20 @@ export default class HomeCore extends ViewCore {
 
             
         }).catch((error : any) => {
+
+            HomeCore.requestQueue[`${id}`].state = RequestState.ERROR;
+            HomeCore.requestQueue[`${id}`].name = name;
+            HomeCore.requestQueue[`${id}`].delay = delay;
+            view.reloadQueue();
+
+            alert({
+                title : "Error",
+                message : "Your gif could not be created, check every image has the same size",
+                delay : 15000,
+                icon : "close",
+                desktop : true,
+            })
+
             console.log(error);
         });
         

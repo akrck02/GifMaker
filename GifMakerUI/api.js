@@ -45,10 +45,14 @@ app.post('/make/gif', (req, res) => {
                 
             if (error) {
                 console.log(`error: ${error.message}`);
+                res.status(500).send(error.message);
+                return;
             }
 
             if (stderr) {
                 console.log(`stderr: ${stderr}`);
+                res.status(500).send(stderr);
+                return; 
             }
 
             // remove directory for user

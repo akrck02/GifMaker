@@ -28,7 +28,10 @@ export default class HomeView extends ViewUI {
         settingsPanel.appendTo(this);
         mainPanel.appendTo(this);
 
+        this.reloadGallery();
+        this.reloadQueue();
         this.appendTo(container);
+
     }
 
     public addImage(File : File){
@@ -311,7 +314,9 @@ export default class HomeView extends ViewUI {
 
                 //remove from files
                 const index = selected.id.split("-")[1];
-                delete HomeCore.files[Object.keys(HomeCore.files)[index]];                
+                delete HomeCore.files[Object.keys(HomeCore.files)[index]];        
+                
+                this.reloadGallery();
             }
         });
 
@@ -445,6 +450,24 @@ export default class HomeView extends ViewUI {
         const queue = this.element.querySelector("#queue") as HTMLElement;
         queue.innerHTML = "";
 
+        if(Object.keys(HomeCore.requestQueue).length == 0){
+            //show message
+            const message = new UIComponent({
+                type : "p",
+                text : "No requests here, create a gif! 🤓",
+                id : "message",
+                styles : {
+                    color : "rgba(200,200,200,0.5)",
+                    fontSize : "1.15rem",
+                    fontWeight : "thin",
+                }
+            });
+
+            message.appendTo(queue);
+            return;
+        }
+
+
         Object.keys(HomeCore.requestQueue).reverse().forEach((key : string) => {
             const item = HomeCore.requestQueue[key];
 
@@ -564,6 +587,26 @@ export default class HomeView extends ViewUI {
 
         const gallery = this.element.querySelector("#gallery") as HTMLElement;
         gallery.innerHTML = "";
+
+
+        if(Object.keys(HomeCore.files).length == 0){
+            //show message
+
+            const message = new UIComponent({
+                type : "p",
+                text : "Drag and drop your images here",
+                id : "message",
+                styles : {
+                    color : "rgba(200,200,200,0.5)",
+                    fontSize : "1.5rem",
+                    fontWeight : "thin",
+                }
+            });
+
+            message.appendTo(gallery);
+            return;
+        }
+
 
         Object.keys(HomeCore.files).forEach((key : string) => {
             const file = HomeCore.files[key];
